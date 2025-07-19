@@ -1,0 +1,81 @@
+# Node.js
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.development
+.env.production
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.local
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Bun
+.bun/
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+coverage/
+
+# Misc
+*.tgz
+*.swp
+
+# Parcel, Vite, etc.
+.cache/
+*.parcel-cache/
+*.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Storybook
+storybook-static/
+
+# VS Code settings
+.vscode/
+
+# Mac system files
+.DS_Store
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Next.js build output
+.next/
+
+# SvelteKit build output
+.svelte-kit/
+
+# Nuxt build output
+.nuxt/
+
+# Remix build output
+.build/
+
+# Expo
+.expo/
