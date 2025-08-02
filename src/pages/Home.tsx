@@ -4,6 +4,9 @@ import { Globe } from "lucide-react";
 import Card from "../components/ui/Card";
 import { useNavigate } from "react-router";
 import { useGetProtocols } from "../api/hooks";
+import Header from "../components/Header";
+import Why from "../components/Why";
+import About from "../components/About";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -16,22 +19,16 @@ export default function Home() {
       `${protocol.name} протокол для безопасного VPN соединения`,
     icon: <Globe size={28} />,
     key: protocol.id.toString(),
-  })) || [
-    {
-      title: "OpenVPN",
-      description:
-        "OpenVPN is a free and open-source software application that implements the OpenVPN protocol, which allows users to establish secure and encrypted connections to remote servers.",
-      icon: <Globe size={28} />,
-      key: "openvpn",
-    },
-  ];
+  }));
 
   return (
-    <div className="flex flex-col h-screen bg-dark-secondary">
-      <Navbar />
-      <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col bg-dark-secondary">
+      <Header />
+      <div className="flex flex-col items-center justify-center pb-20">
+        <About />
+        <Why />
         <div className="flex flex-col items-center justify-center">
-          {protocols.map((protocol) => (
+          {protocols?.map((protocol) => (
             <Card
               title={protocol.title}
               description={protocol.description}
@@ -45,6 +42,7 @@ export default function Home() {
         </div>
         <div className="text-lg">More protocols coming soon</div>
       </div>
+      <Navbar />
     </div>
   );
 }

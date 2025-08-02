@@ -18,6 +18,7 @@ import {
   Protocol,
   UserConfig,
 } from "../api/hooks";
+import Header from "../components/Header";
 
 const days = [
   { label: "3 days", value: "3" },
@@ -110,8 +111,8 @@ export default function ChooseConfig() {
 
   return (
     <div className="flex flex-col h-screen bg-dark-secondary">
-      <Navbar />
-      <div className="flex flex-col items-center justify-center h-screen gap-4">
+      <Header />
+      <div className="flex flex-col items-center justify-center h-screen gap-4 pb-20">
         {error && (
           <Alert type="error" message={error} onClose={() => setError(null)} />
         )}
@@ -185,6 +186,8 @@ export default function ChooseConfig() {
           />
         )}
       </Modal>
+
+      <Navbar />
     </div>
   );
 }

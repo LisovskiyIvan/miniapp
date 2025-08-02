@@ -41,7 +41,6 @@ export default function Profile() {
     setShowConfigModal(true);
   };
 
-
   const downloadConfig = (config: UserConfig) => {
     const blob = new Blob([config.config_content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -57,10 +56,10 @@ export default function Profile() {
   if (isLoading) {
     return (
       <div className="flex flex-col h-screen bg-dark-secondary">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center h-screen pb-20">
           <div className="text-white text-lg">Загрузка профиля...</div>
         </div>
+        <Navbar />
       </div>
     );
   }
@@ -69,21 +68,19 @@ export default function Profile() {
     console.error("Error loading configs:", configsError);
     return (
       <div className="flex flex-col h-screen bg-dark-secondary">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center h-screen pb-20">
           <div className="text-white text-lg">
             Ошибка загрузки профиля: {configsError.message}
           </div>
         </div>
+        <Navbar />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-screen bg-dark-secondary">
-      <Navbar />
-
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 p-4 overflow-y-auto pb-20">
         {error && (
           <Alert type="error" message={error} onClose={() => setError(null)} />
         )}
@@ -114,13 +111,19 @@ export default function Profile() {
             <div className="bg-green-50 p-4 rounded-lg">
               <h3 className="font-semibold text-green-800">Активных</h3>
               <p className="text-2xl font-bold text-green-600">
-                {configs.filter((config: UserConfig) => config.is_active).length}
+                {
+                  configs.filter((config: UserConfig) => config.is_active)
+                    .length
+                }
               </p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg">
               <h3 className="font-semibold text-purple-800">Неактивных</h3>
               <p className="text-2xl font-bold text-purple-600">
-                {configs.filter((config: UserConfig) => !config.is_active).length}
+                {
+                  configs.filter((config: UserConfig) => !config.is_active)
+                    .length
+                }
               </p>
             </div>
           </div>
@@ -201,8 +204,6 @@ export default function Profile() {
                       <Download className="w-4 h-4" />
                       Скачать
                     </Button>
-
-                   
                   </div>
                 </div>
               </div>
@@ -224,6 +225,8 @@ export default function Profile() {
           />
         )}
       </Modal>
+
+      <Navbar />
     </div>
   );
 }

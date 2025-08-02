@@ -7,3 +7,27 @@
   --color-lavender: #FEF9FF;
   --color-light: #F2DFD7;
 }
+
+/* Анимации с задержками для VPN компонента */
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* Предотвращение горизонтального скролла */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
