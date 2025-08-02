@@ -4,7 +4,7 @@ export default function Navbar() {
   const links = [
     {
       to: "/",
-      label: "Vpn",
+      label: "GG.Vpn",
     },
     {
       to: "/profile",

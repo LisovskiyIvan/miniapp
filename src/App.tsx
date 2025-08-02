@@ -5,6 +5,7 @@ import { init, retrieveLaunchParams, viewport} from "@telegram-apps/sdk";
 import Profile from "./pages/Profile";
 import { useSetAtom } from "jotai";
 import { userAtom } from "./stores/userStore";
+import ChooseConfig from "./pages/ChooseConfig";
 
 init();
 viewport.mount();
@@ -73,6 +74,7 @@ function App() {
       <Routes>
         <Route index element={<Home />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/choose-config" element={<ChooseConfig />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
