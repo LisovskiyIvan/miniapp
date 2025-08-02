@@ -1,61 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import { userAtom } from "../stores/userStore";
 import { useAtomValue } from "jotai";
 import Modal from "../components/ui/Modal";
 import ConfigDisplay from "../components/ConfigDisplay";
 import Alert from "../components/ui/Alert";
-import { Download, Calendar, User, Server, Eye, Trash2 } from "lucide-react";
+import { Download, Calendar, User, Server, Eye } from "lucide-react";
 import Button from "../components/ui/Button";
-
-interface ConfigData {
-  id: number;
-  subscription_id: number;
-  config_name: string;
-  created_at: string;
-  config_content: string;
-  is_active: boolean;
-}
+import { useGetUserActiveConfigs, UserConfig } from "../api/hooks";
 
 export default function Profile() {
   const user = useAtomValue(userAtom);
-  const [configs, setConfigs] = useState<ConfigData[]>([]);
-  const [selectedConfig, setSelectedConfig] = useState<ConfigData | null>(null);
+  const [selectedConfig, setSelectedConfig] = useState<UserConfig | null>(null);
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserConfigs();
-    }
-  }, [user?.id]);
+  // Используем новые API хуки
+  const {
+    data: configsData,
+    isLoading,
+    error: configsError,
+  } = useGetUserActiveConfigs(user?.id || 0);
+  console.log(configsData);
 
-  const fetchUserConfigs = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/vpn/${user?.id}/all`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Ошибка при загрузке конфигураций");
-      }
-
-      const data = await response.json();
-      setConfigs(data.configs || []);
-    } catch (err) {
-      console.error("Ошибка при загрузке конфигураций:", err);
-      setError("Не удалось загрузить конфигурации");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const configs = configsData?.configs || [];
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -68,37 +36,13 @@ export default function Profile() {
     });
   };
 
-  const handleViewConfig = (config: ConfigData) => {
+  const handleViewConfig = (config: UserConfig) => {
     setSelectedConfig(config);
     setShowConfigModal(true);
   };
 
-  const handleDeleteConfig = async (configId: number) => {
-    if (!confirm("Вы уверены, что хотите удалить эту конфигурацию?")) {
-      return;
-    }
 
-    try {
-      const response = await fetch(`/api/vpn/${configId}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (response.ok) {
-        // Обновляем список конфигураций
-        setConfigs(configs.filter((config) => config.id !== configId));
-      } else {
-        setError("Ошибка при удалении конфигурации");
-      }
-    } catch (err) {
-      console.error("Ошибка при удалении конфигурации:", err);
-      setError("Ошибка при удалении конфигурации");
-    }
-  };
-
-  const downloadConfig = (config: ConfigData) => {
+  const downloadConfig = (config: UserConfig) => {
     const blob = new Blob([config.config_content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -121,6 +65,20 @@ export default function Profile() {
     );
   }
 
+  if (configsError) {
+    console.error("Error loading configs:", configsError);
+    return (
+      <div className="flex flex-col h-screen bg-dark-secondary">
+        <Navbar />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-white text-lg">
+            Ошибка загрузки профиля: {configsError.message}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-dark-secondary">
       <Navbar />
@@ -138,7 +96,7 @@ export default function Profile() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                {user?.first_name || user?.username || "Пользователь"}
+                {user?.firstname || user?.username || "Пользователь"}
               </h1>
               <p className="text-gray-600">ID: {user?.id}</p>
             </div>
@@ -156,13 +114,13 @@ export default function Profile() {
             <div className="bg-green-50 p-4 rounded-lg">
               <h3 className="font-semibold text-green-800">Активных</h3>
               <p className="text-2xl font-bold text-green-600">
-                {configs.filter((config) => config.is_active).length}
+                {configs.filter((config: UserConfig) => config.is_active).length}
               </p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg">
               <h3 className="font-semibold text-purple-800">Неактивных</h3>
               <p className="text-2xl font-bold text-purple-600">
-                {configs.filter((config) => !config.is_active).length}
+                {configs.filter((config: UserConfig) => !config.is_active).length}
               </p>
             </div>
           </div>
@@ -186,13 +144,13 @@ export default function Profile() {
               </p>
             </div>
           ) : (
-            configs.map((config) => (
+            configs.map((config: UserConfig) => (
               <div
                 key={config.id}
                 className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex-1 w-full">
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className="text-lg font-semibold text-gray-800">
                         {config.config_name}
@@ -215,7 +173,9 @@ export default function Profile() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Server className="w-4 h-4" />
-                        <span>Подписка #{config.subscription_id}</span>
+                        <span>
+                          Сервер: {config.server?.name || "Неизвестно"}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4" />
@@ -224,7 +184,8 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 ml-4">
+                  {/* Кнопки действий: теперь обёрнуты в flex-wrap и overflow-x-auto для предотвращения горизонтального скролла всей страницы */}
+                  <div className="flex flex-wrap gap-2 md:ml-4 w-full md:w-auto overflow-x-auto">
                     <Button
                       onClick={() => handleViewConfig(config)}
                       className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm"
@@ -241,13 +202,7 @@ export default function Profile() {
                       Скачать
                     </Button>
 
-                    <Button
-                      onClick={() => handleDeleteConfig(config.id)}
-                      className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Удалить
-                    </Button>
+                   
                   </div>
                 </div>
               </div>

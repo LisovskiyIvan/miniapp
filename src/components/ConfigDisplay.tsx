@@ -1,23 +1,26 @@
 import React, { useState } from "react";
-import { Download, Copy, Check, Calendar, User, Server } from "lucide-react";
+import {
+  Download,
+  Copy,
+  Check,
+  Calendar,
+  User,
+  Server,
+  Send,
+} from "lucide-react";
 import Button from "./ui/Button";
-
-interface ConfigData {
-  id: number;
-  subscription_id: number;
-  config_name: string;
-  created_at: string;
-  config_content: string;
-  is_active: boolean;
-}
-
+import { UserConfig, useSendConfigToTelegram } from "../api/hooks";
+import { userAtom } from "../stores/userStore";
+import { useAtomValue } from "jotai";
 interface ConfigDisplayProps {
-  config: ConfigData;
+  config: UserConfig;
   onClose: () => void;
 }
 
-export default function ConfigDisplay({ config, onClose }: ConfigDisplayProps) {
+export default function ConfigDisplay({ config }: ConfigDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const sendConfigToTelegram = useSendConfigToTelegram();
+  const user = useAtomValue(userAtom);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -52,6 +55,21 @@ export default function ConfigDisplay({ config, onClose }: ConfigDisplayProps) {
     }
   };
 
+  const handleSendToTelegram = async () => {
+    if (!user?.id) {
+      return;
+    }
+
+    try {
+      await sendConfigToTelegram.mutateAsync({
+        configId: config.id,
+        chatId: user.id,
+      });
+    } catch {
+      alert("Ошибка при отправке файла в Telegram");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Информация о конфигурации */}
@@ -75,8 +93,8 @@ export default function ConfigDisplay({ config, onClose }: ConfigDisplayProps) {
         <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
           <Server className="w-5 h-5 text-purple-500" />
           <div>
-            <p className="text-sm text-gray-600">Подписка ID</p>
-            <p className="font-medium">{config.subscription_id}</p>
+            <p className="text-sm text-gray-600">Сервер</p>
+            <p className="font-medium">{config.server?.name || "Неизвестно"}</p>
           </div>
         </div>
 
@@ -96,10 +114,10 @@ export default function ConfigDisplay({ config, onClose }: ConfigDisplayProps) {
       </div>
 
       {/* Кнопки действий */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         <Button
           onClick={downloadConfig}
-          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded-md w-1/2"
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded-md flex-1"
         >
           <Download className="w-4 h-4" />
           Скачать конфигурацию
@@ -107,7 +125,7 @@ export default function ConfigDisplay({ config, onClose }: ConfigDisplayProps) {
 
         <Button
           onClick={copyConfig}
-          className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-2 py-2 rounded-md w-1/2"
+          className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-2 py-2 rounded-md flex-1"
         >
           {copied ? (
             <>
@@ -121,12 +139,23 @@ export default function ConfigDisplay({ config, onClose }: ConfigDisplayProps) {
             </>
           )}
         </Button>
+
+        <Button
+          onClick={handleSendToTelegram}
+          className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-2 py-2 rounded-md flex-1"
+        >
+          <Send className="w-4 h-4" />
+          Отправить в Telegram
+        </Button>
       </div>
 
       {/* Содержимое конфигурации */}
       <div className="mt-4">
         <h3 className="text-lg font-semibold mb-2">Содержимое конфигурации</h3>
-        <div className="bg-gray-100 p-4 rounded-lg">
+        <div
+          className="bg-gray-100 p-4 rounded-lg cursor-pointer"
+          onClick={copyConfig}
+        >
           <pre className="text-sm text-gray-800 whitespace-pre-wrap overflow-x-auto">
             {config.config_content}
           </pre>

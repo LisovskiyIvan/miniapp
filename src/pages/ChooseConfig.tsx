@@ -9,17 +9,15 @@ import Alert from "../components/ui/Alert";
 import { invoice } from "@telegram-apps/sdk";
 import { useAtomValue } from "jotai";
 import { userAtom } from "../stores/userStore";
-
-const options = [
-  { label: "OpenVPN", value: "openvpn" },
-  { label: "WireGuard", value: "wireguard" },
-];
-
-const servers = [
-  { label: "Netherlands", value: "nl" },
-  // { label: "Server 2", value: "server2" },
-  // { label: "Server 3", value: "server3" },
-];
+import {
+  useCreateInvoice,
+  useCreateConfig,
+  useGetServers,
+  useGetProtocols,
+  Server,
+  Protocol,
+  UserConfig,
+} from "../api/hooks";
 
 const days = [
   { label: "3 days", value: "3" },
@@ -34,126 +32,79 @@ const prices = {
 };
 
 export default function ChooseConfig() {
-  const [selectedOption, setSelectedOption] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
-  const [selectedServer, setSelectedServer] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
+  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(
+    null
+  );
+  const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [selectedDays, setSelectedDays] = useState<{
     label: string;
     value: string;
   } | null>(null);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [configData, setConfigData] = useState<{
-    id: number;
-    subscription_id: number;
-    config_name: string;
-    created_at: string;
-    config_content: string;
-    is_active: boolean;
-  } | null>(null);
+  const [configData, setConfigData] = useState<UserConfig | null>(null);
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const user = useAtomValue(userAtom);
 
+  // Используем новые API хуки
+  const { data: serversData } = useGetServers();
+  const { data: protocolsData } = useGetProtocols();
+  const createInvoiceMutation = useCreateInvoice();
+  const createConfigMutation = useCreateConfig();
+
+  const servers = serversData?.servers || [];
+  const protocols = protocolsData?.protocols || [];
+
   useEffect(() => {
-    if (selectedDays && selectedOption && selectedServer) {
+    if (selectedDays && selectedProtocol && selectedServer) {
       setTotalPrice(prices[selectedDays.value as keyof typeof prices]);
     } else {
       setTotalPrice(0);
     }
-  }, [selectedDays, selectedOption, selectedServer]);
+  }, [selectedDays, selectedProtocol, selectedServer]);
 
   const generateConfig = async () => {
-    console.log(selectedOption, selectedServer, selectedDays);
-    if (!selectedOption || !selectedServer || !selectedDays) {
+    if (!selectedProtocol || !selectedServer || !selectedDays) {
       setError("Пожалуйста, выберите все параметры");
       return;
     }
 
-    setIsLoading(true);
     setError(null);
 
     try {
-      // Явно указываем абсолютный путь и метод GET
-      const res = await fetch(
-        `/api/create_invoice?title=${selectedOption.label}&description=${selectedOption.label}&payload=${selectedOption.value}-${selectedServer.value}-${selectedDays.value}&price=${totalPrice}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
+      // Создаем инвойс
+      const invoiceData = await createInvoiceMutation.mutateAsync({
+        title: selectedProtocol.name,
+        description: `${selectedProtocol.name} конфигурация на ${selectedDays.value} дней`,
+        payload: `${selectedProtocol.id}-${selectedServer.id}-${selectedDays.value}`,
+        price: totalPrice,
+      });
 
-      // Проверяем статус ответа
-      if (!res.ok) {
-        console.error(
-          "Ошибка при получении инвойса:",
-          res.status,
-          res.statusText
-        );
-        setError("Ошибка при создании инвойса. Попробуйте еще раз.");
-        return;
-      }
-
-      // Пробуем распарсить JSON
-      let data;
-      try {
-        data = await res.json();
-      } catch (jsonError) {
-        console.error("Ошибка парсинга JSON:", jsonError);
-        setError("Ошибка при обработке ответа сервера");
-        return;
-      }
-
-      if (!data.invoice) {
-        console.error("В ответе нет поля invoice:", data);
+      if (!invoiceData.invoice) {
         setError("Неверный формат ответа от сервера");
         return;
       }
 
-      try {
-        const res2 = await invoice.open(data.invoice, "url");
-        if (res2 == "paid") {
-          const res3 = await fetch(
-            "/api/subscriptions?user_id=" + user?.id + "&days=30",
-            {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-              },
-            }
-          );
-          if (res3.ok) {
-            const res4 = await fetch("/api/vpn?user_id=" + user?.id, {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-              },
-            });
-            if (res4.ok) {
-              const configResponse = await res4.json();
-              console.log(configResponse);
-              setConfigData(configResponse);
-              setShowConfigModal(true);
-            }
-          }
-          console.log(res3);
-        }
-      } catch (error) {
-        console.error("Ошибка при открытии инвойса:", error);
-        setError("Ошибка при обработке платежа");
+      // Открываем инвойс в Telegram
+      const paymentResult = await invoice.open(invoiceData.invoice, "url");
+
+      if (paymentResult === "paid") {
+        // Создаем VPN конфигурацию
+        const vpnConfig = await createConfigMutation.mutateAsync({
+          user_id: user?.id || 0,
+          server_id: selectedServer.id,
+          protocol_id: selectedProtocol.id,
+          config_name: `${selectedProtocol.name}_${
+            selectedServer.name
+          }_${Date.now()}`,
+          duration_days: parseInt(selectedDays.value),
+        });
+        setConfigData(vpnConfig);
+        setShowConfigModal(true);
       }
     } catch (error) {
-      console.error("Ошибка при запросе инвойса:", error);
-      setError("Ошибка сети. Проверьте подключение к интернету");
-    } finally {
-      setIsLoading(false);
+      console.error("Ошибка при генерации конфигурации:", error);
+      setError("Ошибка при создании конфигурации. Попробуйте еще раз.");
     }
   };
 
@@ -164,34 +115,60 @@ export default function ChooseConfig() {
         {error && (
           <Alert type="error" message={error} onClose={() => setError(null)} />
         )}
+
+        {/* Выбор протокола */}
         <Select
-          options={options}
-          value={selectedOption?.value || ""}
-          onChange={(value) => setSelectedOption({ label: value, value })}
+          options={protocols.map((p) => ({
+            label: p.name,
+            value: p.id.toString(),
+          }))}
+          value={selectedProtocol?.id?.toString() || ""}
+          onChange={(value) => {
+            const protocol = protocols.find((p) => p.id.toString() === value);
+            setSelectedProtocol(protocol || null);
+          }}
           placeholder="Protocol"
         />
+
+        {/* Выбор сервера */}
         <Select
-          options={servers}
-          value={selectedServer?.value || ""}
-          onChange={(value) => setSelectedServer({ label: value, value })}
+          options={servers.map((s) => ({
+            label: s.name,
+            value: s.id.toString(),
+          }))}
+          value={selectedServer?.id?.toString() || ""}
+          onChange={(value) => {
+            const server = servers.find((s) => s.id.toString() === value);
+            setSelectedServer(server || null);
+          }}
           placeholder="Server"
         />
+
+        {/* Выбор количества дней */}
         <Select
           options={days}
           value={selectedDays?.value || ""}
           onChange={(value) => setSelectedDays({ label: value, value })}
           placeholder="Amount of days"
         />
+
         <div className="text-lg flex flex-row items-center gap-2">
           <span>Total price: {totalPrice} </span>
           <Star className="w-6 h-6 text-yellow-500" />
         </div>
+
         <Button
           className="bg-white text-black px-4 py-2 rounded-md"
           onClick={generateConfig}
-          disabled={isLoading}
+          disabled={
+            createInvoiceMutation.isPending || createConfigMutation.isPending
+          }
         >
-          <span>{isLoading ? "Генерация..." : "Generate config"}</span>
+          <span>
+            {createInvoiceMutation.isPending || createConfigMutation.isPending
+              ? "Генерация..."
+              : "Generate config"}
+          </span>
         </Button>
       </div>
 
