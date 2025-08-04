@@ -94,7 +94,7 @@ export default function ConfigDisplay({ config }: ConfigDisplayProps) {
           <Server className="w-5 h-5 text-purple-500" />
           <div>
             <p className="text-sm text-gray-600">Сервер</p>
-            <p className="font-medium">{config.server?.name || "Неизвестно"}</p>
+            <p className="font-medium">{config.server_country || "Неизвестно"}</p>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export default function ConfigDisplay({ config }: ConfigDisplayProps) {
       </div>
 
       {/* Инструкции */}
-      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+      <div className="mt-4 p-4 bg-blue-50 rounded-lg mb-8">
         <h4 className="font-semibold text-blue-800 mb-2">
           Инструкции по использованию:
         </h4>

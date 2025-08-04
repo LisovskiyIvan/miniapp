@@ -13,12 +13,11 @@ import {
   useCreateInvoice,
   useCreateConfig,
   useGetServers,
-  useGetProtocols,
   Server,
-  Protocol,
   UserConfig,
 } from "../api/hooks";
 import Header from "../components/Header";
+import { protocolAtom, ProtocolCard } from "../stores/protocolStore";
 
 const days = [
   { label: "3 days", value: "3" },
@@ -33,7 +32,7 @@ const prices = {
 };
 
 export default function ChooseConfig() {
-  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(
+  const [selectedProtocol, setSelectedProtocol] = useState<ProtocolCard | null>(
     null
   );
   const [selectedServer, setSelectedServer] = useState<Server | null>(null);
@@ -46,15 +45,15 @@ export default function ChooseConfig() {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const user = useAtomValue(userAtom);
-
+  const protocols = useAtomValue(protocolAtom);
   // Используем новые API хуки
   const { data: serversData } = useGetServers();
-  const { data: protocolsData } = useGetProtocols();
+  // const { data: protocolsData } = useGetProtocols();
   const createInvoiceMutation = useCreateInvoice();
   const createConfigMutation = useCreateConfig();
 
   const servers = serversData?.servers || [];
-  const protocols = protocolsData?.protocols || [];
+  // const protocols = protocolsData?.protocols || [];
 
   useEffect(() => {
     if (selectedDays && selectedProtocol && selectedServer) {
@@ -75,9 +74,9 @@ export default function ChooseConfig() {
     try {
       // Создаем инвойс
       const invoiceData = await createInvoiceMutation.mutateAsync({
-        title: selectedProtocol.name,
-        description: `${selectedProtocol.name} конфигурация на ${selectedDays.value} дней`,
-        payload: `${selectedProtocol.id}-${selectedServer.id}-${selectedDays.value}`,
+        title: selectedProtocol.title,
+        description: `${selectedProtocol.title} конфигурация на ${selectedDays.value} дней`,
+        payload: `${selectedProtocol.key}-${selectedServer.id}-${selectedDays.value}`,
         price: totalPrice,
       });
 
@@ -95,8 +94,8 @@ export default function ChooseConfig() {
           user_id: user?.id || 0,
           server_id: selectedServer.id,
           protocol_id: selectedProtocol.id,
-          config_name: `${selectedProtocol.name}_${
-            selectedServer.name
+          config_name: `${selectedProtocol.title}_${
+            selectedServer.country
           }_${Date.now()}`,
           duration_days: parseInt(selectedDays.value),
         });
@@ -120,7 +119,7 @@ export default function ChooseConfig() {
         {/* Выбор протокола */}
         <Select
           options={protocols.map((p) => ({
-            label: p.name,
+            label: p.title,
             value: p.id.toString(),
           }))}
           value={selectedProtocol?.id?.toString() || ""}
@@ -134,7 +133,7 @@ export default function ChooseConfig() {
         {/* Выбор сервера */}
         <Select
           options={servers.map((s) => ({
-            label: s.name,
+            label: s.country ?? "Unknown",
             value: s.id.toString(),
           }))}
           value={selectedServer?.id?.toString() || ""}

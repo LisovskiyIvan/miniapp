@@ -7,6 +7,7 @@ import { useSetAtom } from "jotai";
 import { userAtom } from "./stores/userStore";
 import ChooseConfig from "./pages/ChooseConfig";
 import { useCreateUser } from "./api/hooks";
+import OpenVPN from "./pages/OpenVPN";
 
 init();
 viewport.mount();
@@ -47,6 +48,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/choose-config" element={<ChooseConfig />} />
+        <Route path="/ovpn" element={<OpenVPN />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

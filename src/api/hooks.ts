@@ -31,16 +31,14 @@ export interface Protocol {
 
 export interface UserConfig {
   id: number;
-  user_id: number;
-  server_id: number;
-  protocol_id: number;
   config_name: string;
-  config_content: string;
   is_active: boolean;
   created_at: string;
   expires_at: string;
-  server?: Server;
-  protocol?: Protocol;
+  protocol: string;
+  server_name: string;
+  server_country: string;
+  config_content: string;
 }
 
 export interface Purchase {

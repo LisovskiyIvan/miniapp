@@ -26,6 +26,7 @@ export default function About() {
           {/* Центральный щит */}
           <motion.div
             className="relative z-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full p-6 shadow-2xl"
+            initial={{ boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)" }}
             whileHover={{
               scale: 1.1,
               rotate: 5,
@@ -97,8 +98,15 @@ export default function About() {
 
           {/* Floating иконки с улучшенной анимацией */}
           <motion.div
-            className="absolute -top-3 -left-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full p-2.5 shadow-lg"
-            initial={{ x: -30, y: -30, opacity: 0 }}
+            className="absolute -top-3 -left-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full p-2.5"
+            style={{
+              filter: "drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1))",
+            }}
+            initial={{
+              x: -30,
+              y: -30,
+              opacity: 0,
+            }}
             animate={{
               x: 0,
               y: 0,
@@ -115,15 +123,22 @@ export default function About() {
             whileHover={{
               scale: 1.15,
               rotate: 180,
-              boxShadow: "0 8px 25px rgba(34, 197, 94, 0.4)",
+              filter: "drop-shadow(0 8px 25px rgba(34, 197, 94, 0.4))",
             }}
           >
             <Lock className="w-4 h-4 text-white" />
           </motion.div>
 
           <motion.div
-            className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-2.5 shadow-lg"
-            initial={{ x: 30, y: -30, opacity: 0 }}
+            className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full p-2.5"
+            style={{
+              filter: "drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1))",
+            }}
+            initial={{
+              x: 30,
+              y: -30,
+              opacity: 0,
+            }}
             animate={{
               x: 0,
               y: [0, -6, 0],
@@ -139,15 +154,22 @@ export default function About() {
             whileHover={{
               scale: 1.15,
               rotate: -180,
-              boxShadow: "0 8px 25px rgba(249, 115, 22, 0.4)",
+              filter: "drop-shadow(0 8px 25px rgba(249, 115, 22, 0.4))",
             }}
           >
             <Wifi className="w-4 h-4 text-white" />
           </motion.div>
 
           <motion.div
-            className="absolute -bottom-5 -left-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-2.5 shadow-lg"
-            initial={{ x: -30, y: 30, opacity: 0 }}
+            className="absolute -bottom-5 -left-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-2.5"
+            style={{
+              filter: "drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1))",
+            }}
+            initial={{
+              x: -30,
+              y: 30,
+              opacity: 0,
+            }}
             animate={{
               x: [0, 3, -3, 0],
               y: 0,
@@ -163,15 +185,22 @@ export default function About() {
             whileHover={{
               scale: 1.15,
               rotate: 360,
-              boxShadow: "0 8px 25px rgba(168, 85, 247, 0.4)",
+              filter: "drop-shadow(0 8px 25px rgba(168, 85, 247, 0.4))",
             }}
           >
             <Zap className="w-4 h-4 text-white" />
           </motion.div>
 
           <motion.div
-            className="absolute -bottom-5 -right-3 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full p-2.5 shadow-lg"
-            initial={{ x: 30, y: 30, opacity: 0 }}
+            className="absolute -bottom-5 -right-3 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full p-2.5"
+            style={{
+              filter: "drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1))",
+            }}
+            initial={{
+              x: 30,
+              y: 30,
+              opacity: 0,
+            }}
             animate={{
               x: 0,
               y: 0,
@@ -188,15 +217,21 @@ export default function About() {
             whileHover={{
               scale: 1.15,
               rotate: -360,
-              boxShadow: "0 8px 25px rgba(99, 102, 241, 0.4)",
+              filter: "drop-shadow(0 8px 25px rgba(99, 102, 241, 0.4))",
             }}
           >
             <Globe className="w-4 h-4 text-white" />
           </motion.div>
 
           <motion.div
-            className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full p-2.5 shadow-lg"
-            initial={{ x: 30, opacity: 0 }}
+            className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full p-2.5"
+            style={{
+              filter: "drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1))",
+            }}
+            initial={{
+              x: 30,
+              opacity: 0,
+            }}
             animate={{
               x: 0,
               opacity: 1,
@@ -212,7 +247,7 @@ export default function About() {
             whileHover={{
               scale: 1.15,
               rotate: 180,
-              boxShadow: "0 8px 25px rgba(20, 184, 166, 0.4)",
+              filter: "drop-shadow(0 8px 25px rgba(20, 184, 166, 0.4))",
             }}
           >
             <Eye className="w-4 h-4 text-white" />
@@ -243,9 +278,18 @@ export default function About() {
         </div>
       </motion.div>
       <motion.div
-        className="flex flex-col items-center justify-center bg-white rounded-xl p-8 shadow-xl"
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        className="flex flex-col items-center justify-center bg-white rounded-xl p-8"
+        style={{
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.05)",
+        }}
+        initial={{
+          y: 50,
+          opacity: 0,
+        }}
+        animate={{
+          y: 0,
+          opacity: 1,
+        }}
         transition={{
           type: "spring",
           stiffness: 200,
@@ -254,7 +298,11 @@ export default function About() {
         }}
         whileHover={{
           scale: 1.02,
-          boxShadow: "0 25px 50px rgba(0, 0, 0, 0.1)",
+        }}
+        variants={{
+          hover: {
+            filter: "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.1))",
+          },
         }}
       >
         <motion.h2
@@ -278,7 +326,7 @@ export default function About() {
           ].map((text, index) => (
             <motion.p
               key={index}
-              className="text-lg text-gray-700 text-center"
+              className="text-lg text-center text-gray-700 transition-all duration-200 hover:text-indigo-600"
               initial={{ x: index % 2 === 0 ? -30 : 30, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{
@@ -289,7 +337,6 @@ export default function About() {
               }}
               whileHover={{
                 scale: 1.05,
-                color: "#4F46E5",
               }}
             >
               {text}
