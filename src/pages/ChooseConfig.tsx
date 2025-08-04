@@ -26,9 +26,9 @@ const days = [
 ];
 
 const prices = {
-  "3": 1,
-  "7": 1,
-  "30": 1,
+  "3": 50,
+  "7": 100,
+  "30": 150,
 };
 
 export default function ChooseConfig() {
@@ -53,7 +53,7 @@ export default function ChooseConfig() {
   const createConfigMutation = useCreateConfig();
 
   const servers = serversData?.servers || [];
-  // const protocols = protocolsData?.protocols || [];
+  const isFreeTrial = user?.free_trial_used;
 
   useEffect(() => {
     if (selectedDays && selectedProtocol && selectedServer) {
@@ -72,35 +72,57 @@ export default function ChooseConfig() {
     setError(null);
 
     try {
-      // Создаем инвойс
-      const invoiceData = await createInvoiceMutation.mutateAsync({
-        title: selectedProtocol.title,
-        description: `${selectedProtocol.title} конфигурация на ${selectedDays.value} дней`,
-        payload: `${selectedProtocol.key}-${selectedServer.id}-${selectedDays.value}`,
-        price: totalPrice,
-      });
+      // Проверяем, есть ли у пользователя активный пробный период
+      // Проверяем, активен ли пробный период
+      const hasFreeTrialAvailable =
+        user?.free_trial_expires_at &&
+        new Date(user?.free_trial_expires_at) > new Date();
 
-      if (!invoiceData.invoice) {
-        setError("Неверный формат ответа от сервера");
-        return;
-      }
-
-      // Открываем инвойс в Telegram
-      const paymentResult = await invoice.open(invoiceData.invoice, "url");
-
-      if (paymentResult === "paid") {
-        // Создаем VPN конфигурацию
+      if (hasFreeTrialAvailable) {
+        // Создаем бесплатную VPN конфигурацию
         const vpnConfig = await createConfigMutation.mutateAsync({
-          user_id: user?.id || 0,
+          user_id: user?.tgId || 0,
           server_id: selectedServer.id,
           protocol_id: selectedProtocol.id,
           config_name: `${selectedProtocol.title}_${
             selectedServer.country
-          }_${Date.now()}`,
+          }_trial_${Date.now()}`,
           duration_days: parseInt(selectedDays.value),
+          is_trial: true,
         });
         setConfigData(vpnConfig);
         setShowConfigModal(true);
+      } else {
+        // Создаем платный инвойс
+        const invoiceData = await createInvoiceMutation.mutateAsync({
+          title: selectedProtocol.title,
+          description: `${selectedProtocol.title} конфигурация на ${selectedDays.value} дней`,
+          payload: `${selectedProtocol.key}-${selectedServer.id}-${selectedDays.value}`,
+          price: totalPrice,
+        });
+
+        if (!invoiceData.invoice) {
+          setError("Неверный формат ответа от сервера");
+          return;
+        }
+
+        // Открываем инвойс в Telegram
+        const paymentResult = await invoice.open(invoiceData.invoice, "url");
+
+        if (paymentResult === "paid") {
+          // Создаем VPN конфигурацию
+          const vpnConfig = await createConfigMutation.mutateAsync({
+            user_id: user?.id || 0,
+            server_id: selectedServer.id,
+            protocol_id: selectedProtocol.id,
+            config_name: `${selectedProtocol.title}_${
+              selectedServer.country
+            }_${Date.now()}`,
+            duration_days: parseInt(selectedDays.value),
+          });
+          setConfigData(vpnConfig);
+          setShowConfigModal(true);
+        }
       }
     } catch (error) {
       console.error("Ошибка при генерации конфигурации:", error);
@@ -152,10 +174,10 @@ export default function ChooseConfig() {
           placeholder="Amount of days"
         />
 
-        <div className="text-lg flex flex-row items-center gap-2">
+        {!isFreeTrial && <div className="text-lg flex flex-row items-center gap-2">
           <span>Total price: {totalPrice} </span>
           <Star className="w-6 h-6 text-yellow-500" />
-        </div>
+        </div>}
 
         <Button
           className="bg-white text-black px-4 py-2 rounded-md"
@@ -167,7 +189,7 @@ export default function ChooseConfig() {
           <span>
             {createInvoiceMutation.isPending || createConfigMutation.isPending
               ? "Генерация..."
-              : "Generate config"}
+              : "Создать конфигурацию"}
           </span>
         </Button>
       </div>

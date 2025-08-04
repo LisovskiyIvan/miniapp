@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
+import { userAtom } from "../stores/userStore";
+import { useSetAtom } from "jotai";
 
 // Типы данных на основе API из main.py
 export interface User {
@@ -8,6 +10,7 @@ export interface User {
   username: string;
   firstname: string;
   created_at: string;
+  free_trial_used?: boolean;
   free_trial_expires_at?: string;
 }
 
@@ -73,6 +76,7 @@ export interface CreateConfigRequest {
   protocol_id: number;
   config_name: string;
   duration_days?: number;
+  is_trial?: boolean;
 }
 
 export interface BuyConfigRequest {
@@ -112,6 +116,7 @@ export const queryKeys = {
 // Хуки для пользователей
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
+  const setUser = useSetAtom(userAtom);
 
   return useMutation({
     mutationFn: async (userData: CreateUserRequest) => {
@@ -123,6 +128,14 @@ export const useCreateUser = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
+      setUser({
+        id: data.id,
+        tgId: data.tg_id,
+        firstname: data.firstname,
+        username: data.username,
+        free_trial_used: data.free_trial_used,
+        free_trial_expires_at: data.free_trial_expires_at,
+      });
       console.log("Пользователь создан:", data);
     },
     onError: (error) => {

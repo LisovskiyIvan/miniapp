@@ -40,7 +40,7 @@ export default function Profile() {
     data: configsData,
     isLoading,
     error: configsError,
-  } = useGetUserActiveConfigs(user?.id || 0);
+  } = useGetUserActiveConfigs(user?.tgId || 0);
 
   const configs = configsData?.configs || [];
 
@@ -104,7 +104,7 @@ export default function Profile() {
         title: "Продление конфигурации",
         description: `Продление конфигурации ${selectedConfig?.config_name} на 30 дней`,
         payload: `${renewConfigId}`,
-        price: 1,
+        price: 100,
       });
 
       if (!invoiceData.invoice) {
@@ -233,7 +233,7 @@ export default function Profile() {
                     <div className="flex-1 w-full">
                       <div className="flex items-center gap-3 mb-3">
                         <h3 className="text-lg font-semibold text-gray-800">
-                          {config.config_name}
+                          {config.config_name.split("_").slice(0, -1).join(" ")}
                         </h3>
                       </div>
 
