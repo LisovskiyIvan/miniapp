@@ -15,6 +15,7 @@ import {
   useGetServers,
   Server,
   UserConfig,
+  useGetUserActiveConfigs,
 } from "../api/hooks";
 import Header from "../components/Header";
 import { protocolAtom, ProtocolCard } from "../stores/protocolStore";
@@ -51,9 +52,11 @@ export default function ChooseConfig() {
   // const { data: protocolsData } = useGetProtocols();
   const createInvoiceMutation = useCreateInvoice();
   const createConfigMutation = useCreateConfig();
+  const { data: userConfigs } = useGetUserActiveConfigs(user?.tgId || 0);
 
   const servers = serversData?.servers || [];
-  const isFreeTrial = user?.free_trial_used;
+  const isFreeTrial =
+    user?.free_trial_used && userConfigs?.configs.length === 0;
 
   useEffect(() => {
     if (selectedDays && selectedProtocol && selectedServer) {
@@ -78,7 +81,7 @@ export default function ChooseConfig() {
         user?.free_trial_expires_at &&
         new Date(user?.free_trial_expires_at) > new Date();
 
-      if (hasFreeTrialAvailable) {
+      if (hasFreeTrialAvailable && userConfigs?.configs.length === 0) {
         // Создаем бесплатную VPN конфигурацию
         const vpnConfig = await createConfigMutation.mutateAsync({
           user_id: user?.tgId || 0,
@@ -174,10 +177,12 @@ export default function ChooseConfig() {
           placeholder="Amount of days"
         />
 
-        {!isFreeTrial && <div className="text-lg flex flex-row items-center gap-2">
-          <span>Total price: {totalPrice} </span>
-          <Star className="w-6 h-6 text-yellow-500" />
-        </div>}
+        {!isFreeTrial && (
+          <div className="text-lg flex flex-row items-center gap-2">
+            <span>Total price: {totalPrice} </span>
+            <Star className="w-6 h-6 text-yellow-500" />
+          </div>
+        )}
 
         <Button
           className="bg-white text-black px-4 py-2 rounded-md"
