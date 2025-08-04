@@ -11,7 +11,7 @@ ENV BUN_JS_RUNTIME_OPTS="--max-old-space-size=128"
 COPY package.json bun.lock ./
 
 # Устанавливаем зависимости
-RUN bun install --production=false
+RUN bun install 
 
 # Копируем исходный код
 COPY . .
