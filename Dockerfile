@@ -1,23 +1,23 @@
 # Этап сборки
-FROM oven/bun:1 as build
+FROM oven/bun:1-alpine as build
 
 WORKDIR /app
 
-# Устанавливаем переменные окружения для оптимизации памяти
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-ENV BUN_JS_RUNTIME_OPTS="--max-old-space-size=4096"
+# Устанавливаем переменные окружения для максимальной экономии памяти
+ENV NODE_OPTIONS="--max-old-space-size=128"
+ENV BUN_JS_RUNTIME_OPTS="--max-old-space-size=128"
 
 # Копируем файлы зависимостей
 COPY package.json bun.lock ./
 
 # Устанавливаем зависимости
-RUN bun install
+RUN bun install --frozen-lockfile --production=false
 
 # Копируем исходный код
 COPY . .
 
-# Собираем приложение с оптимизацией памяти
-RUN bun run build
+# Собираем приложение с максимальной оптимизацией памяти
+RUN bun run build:ultra-light
 
 # Этап production
 FROM nginx:alpine

@@ -16,6 +16,17 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     // Отключаем source maps для уменьшения размера
     sourcemap: false,
+    // Минимизируем вывод
+    minify: "esbuild",
+    // Отключаем CSS code splitting
+    cssCodeSplit: false,
+    // Уменьшаем размер чанков
+    rollupOptions: {
+      output: {
+        // Отключаем tree shaking для экономии памяти
+        preserveModules: false,
+      },
+    },
   },
   server: {
     proxy: {

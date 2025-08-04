@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:light": "NODE_OPTIONS='--max-old-space-size=256' tsc -b && NODE_OPTIONS='--max-old-space-size=256' vite build",
+    "build:ultra-light": "NODE_OPTIONS='--max-old-space-size=128' tsc -b && NODE_OPTIONS='--max-old-space-size=128' vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
