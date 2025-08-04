@@ -1,4 +1,4 @@
-import React from "react";
+
 import Navbar from "../components/Navbar";
 import Card from "../components/ui/Card";
 import { Download, Settings, CheckCircle } from "lucide-react";

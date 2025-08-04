@@ -6,7 +6,7 @@ import { useSetAtom } from "jotai";
 // Типы данных на основе API из main.py
 export interface User {
   id: number;
-  tg_id: number;
+  tgId: number;
   username: string;
   firstname: string;
   created_at: string;
@@ -120,7 +120,7 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: async (userData: CreateUserRequest) => {
-      return apiClient.post<User>(
+      return apiClient.post<{ user: User, message: string }>(
         "/api/users",
         undefined,
         userData as unknown as Record<string, string | number | boolean>
@@ -129,12 +129,12 @@ export const useCreateUser = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
       setUser({
-        id: data.id,
-        tgId: data.tg_id,
-        firstname: data.firstname,
-        username: data.username,
-        free_trial_used: data.free_trial_used,
-        free_trial_expires_at: data.free_trial_expires_at,
+        id: data.user.id,
+        tgId: data.user.tgId,
+        firstname: data.user.firstname,
+        username: data.user.username,
+        free_trial_used: data.user.free_trial_used,
+        free_trial_expires_at: data.user.free_trial_expires_at,
       });
       console.log("Пользователь создан:", data);
     },

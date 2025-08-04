@@ -1,5 +1,4 @@
 import { Download, Globe, User } from "lucide-react";
-import React from "react";
 import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import { userAtom } from "../stores/userStore";
 import { useAtomValue } from "jotai";
@@ -129,7 +129,7 @@ export default function Profile() {
     try {
       await sendConfigToTelegram.mutateAsync({
         configId: confId,
-        chatId: user.id,
+        chatId: user.tgId,
       });
     } catch {
       alert("Ошибка при отправке файла в Telegram");

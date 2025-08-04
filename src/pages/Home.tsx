@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { Globe } from "lucide-react";
 import Card from "../components/ui/Card";

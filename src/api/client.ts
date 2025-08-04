@@ -1,4 +1,3 @@
-// @ts-expect-error: Свойство 'env' может отсутствовать на типе 'ImportMeta'
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export interface ApiError {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Download,
   Copy,
@@ -63,7 +63,7 @@ export default function ConfigDisplay({ config }: ConfigDisplayProps) {
     try {
       await sendConfigToTelegram.mutateAsync({
         configId: config.id,
-        chatId: user.id,
+        chatId: user.tgId,
       });
     } catch {
       alert("Ошибка при отправке файла в Telegram");

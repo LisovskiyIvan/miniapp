@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import Home from "./pages/Home";
 import { init, retrieveLaunchParams, viewport } from "@telegram-apps/sdk";
@@ -45,12 +45,12 @@ function App() {
         .then((response) => {
           if (response as unknown as User) {
             setUser({
-              id: response.user.id,
-              tgId: response.user.tgId,
-              firstname: response.user.firstname,
-              username: response.user.username,
-              free_trial_used: response.user.free_trial_used,
-              free_trial_expires_at: response.user.free_trial_expires_at,
+              id: response.user.id as number,
+              tgId: response.user.tgId as number,
+              firstname: response.user.firstname as string,
+              username: response.user.username as string,
+              free_trial_used: response.user.free_trial_used as boolean,
+              free_trial_expires_at: response.user.free_trial_expires_at as string,
             });
           }
         });

@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Shield, Wifi, Lock, Zap, Globe, Eye } from "lucide-react";
 import { motion } from "motion/react";
 
