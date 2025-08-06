@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 export interface ApiError {
   message: string;
@@ -17,7 +17,12 @@ export class ApiClient {
     options: RequestInit = {},
     queryParams?: Record<string, string | number | boolean>
   ): Promise<T> {
-    let url = `${this.baseURL}${endpoint}`;
+    // Убираем двойные слеши
+    const cleanBaseURL = this.baseURL.endsWith("/")
+      ? this.baseURL.slice(0, -1)
+      : this.baseURL;
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    let url = `${cleanBaseURL}${cleanEndpoint}`;
 
     // Добавляем query параметры
     if (queryParams) {

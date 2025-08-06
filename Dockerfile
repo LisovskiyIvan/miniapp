@@ -3,9 +3,8 @@ FROM oven/bun:1-alpine as build
 
 WORKDIR /app
 
-# Устанавливаем переменные окружения для максимальной экономии памяти
-ENV NODE_OPTIONS="--max-old-space-size=128"
-ENV BUN_JS_RUNTIME_OPTS="--max-old-space-size=128"
+# ENV NODE_OPTIONS="--max-old-space-size=128"
+# ENV BUN_JS_RUNTIME_OPTS="--max-old-space-size=128"
 
 # Копируем файлы зависимостей
 COPY package.json bun.lock ./
@@ -17,7 +16,7 @@ RUN bun install
 COPY . .
 
 # Собираем приложение с максимальной оптимизацией памяти
-RUN bun run build:ultra-light
+RUN bun run build
 
 # Этап production
 FROM nginx:alpine
